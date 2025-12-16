@@ -53,7 +53,18 @@ with col1:
 
 with col2:
     # st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+    # st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    div[data-testid="stButton"] > button {
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        font-size: 15px;
+        margin-top: 24px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     st.button("⇄", on_click=swap_currencies)
 
 with col3:
