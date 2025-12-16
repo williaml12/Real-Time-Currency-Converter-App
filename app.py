@@ -53,7 +53,7 @@ with col1:
 
 with col2:
     st.markdown("<br>", unsafe_allow_html=True)
-    st.button("⇄ Swap", on_click=swap_currencies)
+    st.button("⇄", on_click=swap_currencies)
 
 with col3:
     to_currency = st.selectbox(
