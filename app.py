@@ -32,7 +32,7 @@ currency_keys = list(CURRENCIES.keys())
 if "from_idx" not in st.session_state:
     st.session_state.from_idx = 0
 if "to_idx" not in st.session_state:
-    st.session_state.to_idx = 3
+    st.session_state.to_idx = 2
 
 def swap_currencies():
     st.session_state.from_idx, st.session_state.to_idx = (
