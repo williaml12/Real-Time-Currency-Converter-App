@@ -27,6 +27,8 @@ CURRENCIES = {
     "THB – Thai Baht": "THB"
 }
 
+currency_keys = list(CURRENCIES.keys())
+
 amount = st.number_input("Amount", min_value=0.0, value=1.0, step=0.1)
 
 col1, col2, col3 = st.columns([4, 1, 4])
