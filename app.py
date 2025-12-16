@@ -1,13 +1,21 @@
 import streamlit as st
 import requests
+import time
 
+# ------------------ CONFIG ------------------
 API_KEY = "5FL7EVZI072LXD2W"
 
-st.set_page_config(page_title="Real-Time Currency Converter", page_icon="💱")
+st.set_page_config(
+    page_title="Real-Time Currency Converter",
+    page_icon="💱",
+    layout="centered"
+)
 
+# ------------------ TITLE ------------------
 st.title("💱 Real-Time Currency Converter")
 st.caption("Powered by Alpha Vantage API")
 
+# ------------------ CURRENCY LIST ------------------
 CURRENCIES = {
     "USD – US Dollar": "USD",
     "EUR – Euro": "EUR",
@@ -27,6 +35,9 @@ CURRENCIES = {
     "THB – Thai Baht": "THB"
 }
 
+currency_keys = list(CURRENCIES.keys())
+
+# ------------------ SESSION STATE ------------------
 if "from_idx" not in st.session_state:
     st.session_state.from_idx = 0
 if "to_idx" not in st.session_state:
@@ -38,27 +49,45 @@ def swap_currencies():
         st.session_state.from_idx,
     )
 
-amount = st.number_input("Amount", min_value=0.0, value=1.0, step=0.1)
+# ------------------ INPUTS ------------------
+amount = st.number_input(
+    "Amount",
+    min_value=0.0,
+    value=1.0,
+    step=0.1
+)
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns([4, 1, 4])
 
 with col1:
     from_currency = st.selectbox(
         "From Currency",
-        options=list(CURRENCIES.keys()),
-        index=0
+        currency_keys,
+        index=st.session_state.from_idx
     )
 
 with col2:
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.button("🔄", on_click=swap_currencies)
+
+with col3:
     to_currency = st.selectbox(
         "To Currency",
-        options=list(CURRENCIES.keys()),
-        index=3
+        currency_keys,
+        index=st.session_state.to_idx
     )
+
+# Update indices
+st.session_state.from_idx = currency_keys.index(from_currency)
+st.session_state.to_idx = currency_keys.index(to_currency)
 
 from_c = CURRENCIES[from_currency]
 to_c = CURRENCIES[to_currency]
 
+# ------------------ AUTO REFRESH ------------------
+auto_refresh = st.checkbox("🔁 Auto refresh every 60 seconds")
+
+# ------------------ CONVERT ------------------
 if st.button("Convert 🚀"):
     try:
         url = (
@@ -69,19 +98,26 @@ if st.button("Convert 🚀"):
             f"&apikey={API_KEY}"
         )
 
-        response = requests.get(url).json()
+        response = requests.get(url, timeout=10).json()
+
         rate = float(
             response["Realtime Currency Exchange Rate"]["5. Exchange Rate"]
         )
 
         result = rate * amount
-        time = response["Realtime Currency Exchange Rate"]["6. Last Refreshed"]
+        time_updated = response["Realtime Currency Exchange Rate"]["6. Last Refreshed"]
 
         st.success(f"💰 {amount} {from_c} = {result:.2f} {to_c}")
-        st.caption(f"⏱ Last updated: {time}")
+        st.caption(f"⏱ Last updated: {time_updated}")
 
     except Exception as e:
-        st.error(f"❌ Error: {e}")
+        st.error("❌ Failed to fetch exchange rate.")
+        st.code(e)
+
+# ------------------ AUTO REFRESH LOGIC ------------------
+if auto_refresh:
+    time.sleep(60)
+    st.experimental_rerun()
 
 
 
