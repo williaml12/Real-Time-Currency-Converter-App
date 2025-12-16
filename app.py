@@ -18,7 +18,13 @@ CURRENCIES = {
     "CAD – Canadian Dollar": "CAD",
     "CHF – Swiss Franc": "CHF",
     "CNY – Chinese Yuan": "CNY",
-    "SGD – Singapore Dollar": "SGD"
+    "SGD – Singapore Dollar": "SGD",
+    "NZD – New Zealand Dollar": "NZD",
+    "ZAR – South African Rand": "ZAR",
+    "AED – UAE Dirham": "AED",
+    "SAR – Saudi Riyal": "SAR",
+    "MYR – Malaysian Ringgit": "MYR",
+    "THB – Thai Baht": "THB"
 }
 
 amount = st.number_input("Amount", min_value=0.0, value=1.0, step=0.1)
