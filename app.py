@@ -58,9 +58,9 @@ with col2:
     <style>
     div[data-testid="stButton"] > button {
         border-radius: 50%;
-        width: 35px;
-        height: 35px;
-        font-size: 15px;
+        width: 42px;
+        height: 42px;
+        font-size: 5px;
         margin-top: 24px;
     }
     </style>
