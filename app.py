@@ -18,26 +18,40 @@ CURRENCIES = {
     "CAD – Canadian Dollar": "CAD",
     "CHF – Swiss Franc": "CHF",
     "CNY – Chinese Yuan": "CNY",
-    "SGD – Singapore Dollar": "SGD"
+    "SGD – Singapore Dollar": "SGD",
+    "NZD – New Zealand Dollar": "NZD",
+    "ZAR – South African Rand": "ZAR",
+    "AED – UAE Dirham": "AED",
+    "SAR – Saudi Riyal": "SAR",
+    "MYR – Malaysian Ringgit": "MYR",
+    "THB – Thai Baht": "THB"
 }
 
 amount = st.number_input("Amount", min_value=0.0, value=1.0, step=0.1)
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns([4, 1, 4])
 
 with col1:
     from_currency = st.selectbox(
         "From Currency",
-        options=list(CURRENCIES.keys()),
-        index=0
+        currency_keys,
+        index=st.session_state.from_idx
     )
 
 with col2:
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.button("🔄", on_click=swap_currencies)
+
+with col3:
     to_currency = st.selectbox(
         "To Currency",
-        options=list(CURRENCIES.keys()),
-        index=3
+        currency_keys,
+        index=st.session_state.to_idx
     )
+
+# Update indices
+st.session_state.from_idx = currency_keys.index(from_currency)
+st.session_state.to_idx = currency_keys.index(to_currency)
 
 from_c = CURRENCIES[from_currency]
 to_c = CURRENCIES[to_currency]
