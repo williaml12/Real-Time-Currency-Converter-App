@@ -42,7 +42,7 @@ def swap_currencies():
 
 amount = st.number_input("Amount", min_value=0.0, value=1.0, step=0.1)
 
-col1, col2, col3 = st.columns([4, 2, 4])
+col1, col2, col3 = st.columns([4, 1, 4])
 
 with col1:
     from_currency = st.selectbox(
