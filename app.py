@@ -42,6 +42,18 @@ def swap_currencies():
 
 amount = st.number_input("Amount", min_value=0.0, value=1.0, step=0.1)
 
+st.markdown("""
+<style>
+.swap-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 col1, col2, col3 = st.columns([4, 1, 4])
 
 with col1:
@@ -53,8 +65,11 @@ with col1:
 
 with col2:
     # st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
+    # st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+    # st.button("⇄", on_click=swap_currencies)
+    st.markdown('<div class="swap-center">', unsafe_allow_html=True)
     st.button("⇄", on_click=swap_currencies)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with col3:
     to_currency = st.selectbox(
