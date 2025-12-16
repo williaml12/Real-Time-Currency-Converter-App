@@ -60,7 +60,7 @@ with col2:
         border-radius: 50%;
         width: 42px;
         height: 42px;
-        font-size: 15px;
+        font-size: 45px;
         margin-top: 24px;
     }
     </style>
