@@ -57,7 +57,7 @@ with col2:
     st.markdown("""
     <style>
     div[data-testid="stButton"] > button {
-        border-radius: 50%;
+        border-radius: 35%;
         width: 42px;
         height: 42px;
         font-size: 15px;
