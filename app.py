@@ -103,6 +103,20 @@ if st.button("Convert 🚀"):
 
 # ------------------ HISTORICAL AREA CHART ------------------
 
+
+@st.cache_data(ttl=3600)
+def get_fx_history(from_c, to_c):
+    url = (
+        "https://www.alphavantage.co/query"
+        "?function=FX_DAILY"
+        f"&from_symbol={from_c}"
+        f"&to_symbol={to_c}"
+        f"&apikey={API_KEY}"
+    )
+    response = requests.get(url, timeout=10).json()
+    return response.get("Time Series FX (Daily)", {})
+
+
 st.markdown("---")
 st.subheader("📊 Exchange Rate Chart (Interactive)")
 
