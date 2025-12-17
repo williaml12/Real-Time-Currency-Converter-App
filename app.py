@@ -1,6 +1,8 @@
 import streamlit as st
 import requests
 import pandas as pd
+import plotly.express as px
+
 
 API_KEY = "5FL7EVZI072LXD2W"
 
@@ -101,27 +103,17 @@ if st.button("Convert 🚀"):
 
 # ------------------ HISTORICAL AREA CHART ------------------
 
-@st.cache_data(ttl=3600)
-def get_fx_history(from_c, to_c):
-    url = (
-        "https://www.alphavantage.co/query"
-        "?function=FX_DAILY"
-        f"&from_symbol={from_c}"
-        f"&to_symbol={to_c}"
-        f"&apikey={API_KEY}"
-    )
-    response = requests.get(url, timeout=10).json()
-    return response.get("Time Series FX (Daily)", {})
-
-
 st.markdown("---")
-st.subheader("📉 Exchange Rate Chart")
+st.subheader("📊 Exchange Rate Chart (Interactive)")
 
-days = st.selectbox(
-    "Select time range",
-    options=[7, 30, 90],
+# Time range options similar to XE
+chart_range = st.selectbox(
+    "Show chart for:",
+    ["7 Days", "30 Days", "90 Days"],
     index=1
 )
+
+range_days = int(chart_range.split()[0])
 
 history = get_fx_history(from_c, to_c)
 
@@ -134,14 +126,28 @@ if history:
     )
 
     df.index = pd.to_datetime(df.index)
-    df = df.sort_index().tail(days)
+    df = df.sort_index().tail(range_days)
 
-    st.line_chart(df["Rate"], height=300)
+    if not df.empty:
+        fig = px.line(
+            df,
+            x=df.index,
+            y="Rate",
+            title=f"{from_c} → {to_c} (Last {chart_range})",
+            labels={"x": "Date", "Rate": "Exchange Rate"},
+        )
+        fig.update_traces(mode="lines+markers")
+        fig.update_layout(
+            xaxis=dict(showgrid=False),
+            yaxis=dict(showgrid=True),
+            margin=dict(l=40, r=40, t=60, b=40)
+        )
 
-    st.caption(f"{from_c} → {to_c} exchange rate over the last {days} days")
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning("⚠️ Not enough data to plot this range.")
 else:
-    st.warning("⚠️ Historical exchange rate data not available.")
-
+    st.warning("⚠️ Historical data not available for this currency pair.")
 
 
 
