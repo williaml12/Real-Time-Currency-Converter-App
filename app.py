@@ -101,25 +101,13 @@ if st.button("Convert 🚀"):
 
 # ------------------ HISTORICAL AREA CHART ------------------
 st.markdown("---")
-st.subheader("📈 Exchange Rate Trend")
+st.subheader("📉 Exchange Rate Chart")
 
 days = st.selectbox(
     "Select time range",
     options=[7, 30, 90],
     index=1
 )
-
-@st.cache_data(ttl=3600)
-def get_fx_history(from_c, to_c):
-    url = (
-        "https://www.alphavantage.co/query"
-        "?function=FX_DAILY"
-        f"&from_symbol={from_c}"
-        f"&to_symbol={to_c}"
-        f"&apikey={API_KEY}"
-    )
-    data = requests.get(url, timeout=10).json()
-    return data.get("Time Series FX (Daily)", {})
 
 history = get_fx_history(from_c, to_c)
 
@@ -134,12 +122,11 @@ if history:
     df.index = pd.to_datetime(df.index)
     df = df.sort_index().tail(days)
 
-    st.area_chart(df["Rate"], height=300)
+    st.line_chart(df["Rate"], height=300)
+
     st.caption(f"{from_c} → {to_c} exchange rate over the last {days} days")
-
 else:
-    st.warning("⚠️ Historical data not available for this currency pair.")
-
+    st.warning("⚠️ Historical exchange rate data not available.")
 
 
 
