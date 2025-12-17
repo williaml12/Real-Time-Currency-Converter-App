@@ -134,6 +134,15 @@ with b3:
 with b4:
     if st.button("1Y"):
         st.session_state.range_days = 365
+with b5:
+    if st.button("2Y"):
+        st.session_state.range_days = 730
+with b6:
+    if st.button("5Y"):
+        st.session_state.range_days = 1825
+with b7:
+    if st.button("10Y"):
+        st.session_state.range_days = 3650
 
 range_days = st.session_state.range_days
 
