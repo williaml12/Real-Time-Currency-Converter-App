@@ -152,7 +152,7 @@ if history:
     df = (
         pd.DataFrame(history)
         .T
-        .rename(columns={"7. close": "Rate"})
+        .rename(columns={"4. close": "Rate"})
         .astype(float)
     )
 
