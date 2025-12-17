@@ -120,7 +120,7 @@ st.markdown("---")
 st.subheader("📊 Exchange Rate Chart")
 
 # ⏱ Time range buttons (XE-style)
-b1, b2, b3, b4, b5, b6, b7 = st.columns(4)
+b1, b2, b3, b4, b5, b6, b7 = st.columns(7)
 
 with b1:
     if st.button("1W"):
