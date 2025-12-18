@@ -83,7 +83,9 @@ with col1:
 
 with col2:
     st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
-    st.button("⇄", on_click=swap_currencies)
+    # st.button("⇄", on_click=swap_currencies)
+    st.button("⇄", on_click=swap_currencies, use_container_width=True)
+
 
 
 with col3:
