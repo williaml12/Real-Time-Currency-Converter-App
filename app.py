@@ -46,6 +46,9 @@ def swap_currencies():
         st.session_state.from_idx,
     )
 
+def set_range(days):
+    st.session_state.range_days = days
+
 # ------------------ INPUTS ------------------
 amount = st.number_input("Amount", min_value=0.0, value=1.0, step=0.1)
 
@@ -119,7 +122,6 @@ def get_fx_history(from_c, to_c):
 st.markdown("---")
 st.subheader("📊 Exchange Rate Chart")
 
-# ⏱ Time range buttons (XE-style)
 # ⏱ XE-style time buttons (FIXED)
 b1, b2, b3, b4, b5, b6, b7 = st.columns(7)
 
@@ -137,7 +139,6 @@ with b6:
     st.button("5Y", key="5y", on_click=set_range, args=(1825,))
 with b7:
     st.button("10Y", key="10y", on_click=set_range, args=(3650,))
-
 
 range_days = st.session_state.range_days
 
