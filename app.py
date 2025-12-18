@@ -87,22 +87,9 @@ with col1:
 
 
 with col2:
-    st.markdown("""
-        <style>
-            .swap-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 100%;
-                margin-top: 22px; /* aligns with selectbox input area */
-            }
-        </style>
-        <div class="swap-btn">
-    """, unsafe_allow_html=True)
-
+    st.markdown("<br><br>", unsafe_allow_html=True)
     st.button("⇄", on_click=swap_currencies)
 
-    st.markdown("</div>", unsafe_allow_html=True)
 
 
 with col3:
