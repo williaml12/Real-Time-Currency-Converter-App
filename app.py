@@ -120,29 +120,24 @@ st.markdown("---")
 st.subheader("📊 Exchange Rate Chart")
 
 # ⏱ Time range buttons (XE-style)
+# ⏱ XE-style time buttons (FIXED)
 b1, b2, b3, b4, b5, b6, b7 = st.columns(7)
 
 with b1:
-    if st.button("1W"):
-        st.session_state.range_days = 7
+    st.button("1W", key="1w", on_click=set_range, args=(7,))
 with b2:
-    if st.button("1M"):
-        st.session_state.range_days = 30
+    st.button("1M", key="1m", on_click=set_range, args=(30,))
 with b3:
-    if st.button("3M"):
-        st.session_state.range_days = 90
+    st.button("3M", key="3m", on_click=set_range, args=(90,))
 with b4:
-    if st.button("1Y"):
-        st.session_state.range_days = 365
+    st.button("1Y", key="1y", on_click=set_range, args=(365,))
 with b5:
-    if st.button("2Y"):
-        st.session_state.range_days = 730
+    st.button("2Y", key="2y", on_click=set_range, args=(730,))
 with b6:
-    if st.button("5Y"):
-        st.session_state.range_days = 1825
+    st.button("5Y", key="5y", on_click=set_range, args=(1825,))
 with b7:
-    if st.button("10Y"):
-        st.session_state.range_days = 3650
+    st.button("10Y", key="10y", on_click=set_range, args=(3650,))
+
 
 range_days = st.session_state.range_days
 
