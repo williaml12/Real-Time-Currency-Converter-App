@@ -114,6 +114,19 @@ if amount > 0 and from_c != to_c:
         st.warning("⚠️ Unable to fetch live exchange rate at the moment.")
 
 # ------------------ HISTORICAL DATA ------------------
+# @st.cache_data(ttl=3600)
+# def get_fx_history(from_c, to_c):
+#     url = (
+#         "https://www.alphavantage.co/query"
+#         "?function=FX_DAILY"
+#         f"&from_symbol={from_c}"
+#         f"&to_symbol={to_c}"
+#         f"&apikey={API_KEY}"
+#     )
+#     response = requests.get(url, timeout=10).json()
+#     return response.get("Time Series FX (Daily)", {})
+
+
 @st.cache_data(ttl=3600)
 def get_fx_history(from_c, to_c):
     url = (
@@ -123,8 +136,8 @@ def get_fx_history(from_c, to_c):
         f"&to_symbol={to_c}"
         f"&apikey={API_KEY}"
     )
-    response = requests.get(url, timeout=10).json()
-    return response.get("Time Series FX (Daily)", {})
+    data = requests.get(url, timeout=10).json()
+    return data.get("Time Series FX (Daily)")
 
 # ------------------ XE-STYLE CHART ------------------
 st.markdown("---")
@@ -148,26 +161,71 @@ with b7:
     st.button("10Y", key="10y", on_click=set_range, args=(3650,))
 
 range_days = st.session_state.range_days
+# history = get_fx_history(from_c, to_c)
+
+# if history:
+#     df = (
+#         pd.DataFrame(history)
+#         .T
+#         .rename(columns={"4. close": "Rate"})
+#         .astype(float)
+#     )
+
+#     df.index = pd.to_datetime(df.index)
+#     df = df.sort_index().tail(range_days)
+
+#     if not df.empty:
+#         fig = px.line(
+#             df,
+#             x=df.index,
+#             y="Rate",
+#             title=f"{from_c} → {to_c} (Daily Close, UTC)",
+#             labels={"x": "Date", "Rate": "Exchange Rate"},
+#         )
+
+#         fig.update_layout(
+#             hovermode="x unified",
+#             xaxis=dict(showgrid=False),
+#             yaxis=dict(showgrid=True),
+#             margin=dict(l=40, r=40, t=60, b=40),
+#         )
+
+#         st.plotly_chart(fig, use_container_width=True)
+#         st.caption(
+#             "Daily FX closing rate (UTC). Short-term ranges (1W–1M) are most accurate."
+#         )
+#     else:
+#         st.warning("⚠️ Not enough data for selected range.")
+# else:
+#     st.warning("⚠️ Historical data not available for this currency pair.")
+
 history = get_fx_history(from_c, to_c)
 
 if history:
-    df = (
-        pd.DataFrame(history)
-        .T
-        .rename(columns={"4. close": "Rate"})
-        .astype(float)
-    )
-
+    # Convert API response → DataFrame
+    df = pd.DataFrame.from_dict(history, orient="index")
     df.index = pd.to_datetime(df.index)
-    df = df.sort_index().tail(range_days)
 
-    if not df.empty:
+    df["Rate"] = df["4. close"].astype(float)
+    df = df.sort_index()
+
+    # 🔑 Accurate calendar-based slicing
+    end_date = df.index.max()
+    start_date = end_date - pd.Timedelta(days=range_days)
+    df_range = df.loc[df.index >= start_date]
+
+    if not df_range.empty:
         fig = px.line(
-            df,
-            x=df.index,
+            df_range,
+            x=df_range.index,
             y="Rate",
-            title=f"{from_c} → {to_c} (Daily Close, UTC)",
+            title=f"{from_c} → {to_c} | Last {range_days} Days (Daily Close)",
             labels={"x": "Date", "Rate": "Exchange Rate"},
+        )
+
+        fig.update_traces(
+            line=dict(width=2),
+            hovertemplate="%{y:.4f}<extra></extra>",
         )
 
         fig.update_layout(
@@ -178,8 +236,10 @@ if history:
         )
 
         st.plotly_chart(fig, use_container_width=True)
+
         st.caption(
-            "Daily FX closing rate (UTC). Short-term ranges (1W–1M) are most accurate."
+            "ℹ️ Rates shown are daily FX closing prices (UTC) from Alpha Vantage. "
+            "They may differ slightly from live mid-market rates shown on XE."
         )
     else:
         st.warning("⚠️ Not enough data for selected range.")
