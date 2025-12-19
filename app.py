@@ -118,8 +118,12 @@ if amount > 0 and from_c != to_c:
         st.success(f"💰 {amount} {from_c} = {result:.2f} {to_c}")
         st.caption(f"Rate: {rate:.6f} | ⏱ Updated: {updated}")
 
-    except Exception:
-        st.warning("⚠️ Unable to fetch live exchange rate.")
+    # except Exception:
+    #     st.warning("⚠️ Unable to fetch live exchange rate.")
+
+    except Exception as e:
+        st.error(f"API Error: {e}")
+
 
 # ================== HISTORICAL DATA ==================
 @st.cache_data(ttl=3600)
