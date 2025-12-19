@@ -3,7 +3,8 @@ import requests
 import pandas as pd
 import plotly.express as px
 
-API_KEY = "HZNR2Y0ODK9MTD1T"
+# API_KEY = "HZNR2Y0ODK9MTD1T"
+API_KEY = "cur_live_fu5Qwj51XDciBICSWKky2Zgjzf3DSa52yj6pqj4C"
 
 st.set_page_config(page_title="Real-Time Currency Converter", page_icon="💱")
 
@@ -50,24 +51,42 @@ def set_range(days):
     st.session_state.range_days = days
 
 # ------------------ AUTO-CONVERSION FUNCTION ------------------
+# @st.cache_data(ttl=60)
+# def convert_currency(amount, from_c, to_c):
+#     url = (
+#         "https://www.alphavantage.co/query"
+#         "?function=CURRENCY_EXCHANGE_RATE"
+#         f"&from_currency={from_c}"
+#         f"&to_currency={to_c}"
+#         f"&apikey={API_KEY}"
+#     )
+
+#     response = requests.get(url, timeout=10).json()
+
+#     rate = float(
+#         response["Realtime Currency Exchange Rate"]["5. Exchange Rate"]
+#     )
+#     time_updated = response["Realtime Currency Exchange Rate"]["6. Last Refreshed"]
+
+#     return rate * amount, rate, time_updated
+
+
+
+
 @st.cache_data(ttl=60)
 def convert_currency(amount, from_c, to_c):
     url = (
-        "https://www.alphavantage.co/query"
-        "?function=CURRENCY_EXCHANGE_RATE"
-        f"&from_currency={from_c}"
-        f"&to_currency={to_c}"
-        f"&apikey={API_KEY}"
+        "https://currencyapi.net/api/v1/rates"
+        f"?key={API_KEY}&base={from_c}"
     )
 
-    response = requests.get(url, timeout=10).json()
+    data = requests.get(url, timeout=10).json()
 
-    rate = float(
-        response["Realtime Currency Exchange Rate"]["5. Exchange Rate"]
-    )
-    time_updated = response["Realtime Currency Exchange Rate"]["6. Last Refreshed"]
+    rate = float(data["rates"][to_c])
+    time_updated = data.get("updated", "Live")
 
     return rate * amount, rate, time_updated
+
 
 # ------------------ INPUTS ------------------
 amount = st.number_input("Amount", min_value=0.0, value=1.0, step=0.1)
@@ -127,16 +146,30 @@ if amount > 0 and from_c != to_c:
 #     return response.get("Time Series FX (Daily)", {})
 
 @st.cache_data(ttl=3600)
-def get_fx_history(from_c, to_c):
-    url = (
-        "https://www.alphavantage.co/query"
-        "?function=FX_DAILY"
-        f"&from_symbol={from_c}"
-        f"&to_symbol={to_c}"
-        f"&apikey={API_KEY}"
-    )
-    data = requests.get(url, timeout=10).json()
-    return data.get("Time Series FX (Daily)")
+def get_fx_history(from_c, to_c, days):
+    end_date = pd.Timestamp.utcnow().normalize()
+    start_date = end_date - pd.Timedelta(days=days)
+
+    records = []
+
+    for date in pd.date_range(start_date, end_date):
+        date_str = date.strftime("%Y-%m-%d")
+
+        url = (
+            "https://currencyapi.net/api/v1/history"
+            f"?key={API_KEY}&base={from_c}&date={date_str}"
+        )
+
+        r = requests.get(url, timeout=10).json()
+
+        if "rates" in r and to_c in r["rates"]:
+            records.append({
+                "date": date,
+                "rate": float(r["rates"][to_c])
+            })
+
+    return pd.DataFrame(records)
+
 
 
 # ------------------ XE-STYLE CHART ------------------
@@ -199,52 +232,39 @@ range_days = st.session_state.range_days
 # else:
 #     st.warning("⚠️ Historical data not available for this currency pair.")
 
-history = get_fx_history(from_c, to_c)
+range_days = st.session_state.range_days
 
-if history:
-    # Convert API response → DataFrame
-    df = pd.DataFrame.from_dict(history, orient="index")
-    df.index = pd.to_datetime(df.index)
+df = get_fx_history(from_c, to_c, range_days)
 
-    df["Rate"] = df["4. close"].astype(float)
-    df = df.sort_index()
+if not df.empty:
+    fig = px.line(
+        df,
+        x="date",
+        y="rate",
+        title=f"{from_c} → {to_c} | Last {range_days} Days",
+        labels={"date": "Date", "rate": "Exchange Rate"},
+    )
 
-    # 🔑 Accurate calendar-based slicing
-    end_date = df.index.max()
-    start_date = end_date - pd.Timedelta(days=range_days)
-    df_range = df.loc[df.index >= start_date]
+    fig.update_traces(
+        line=dict(width=2),
+        hovertemplate="%{y:.4f}<extra></extra>",
+    )
 
-    if not df_range.empty:
-        fig = px.line(
-            df_range,
-            x=df_range.index,
-            y="Rate",
-            title=f"{from_c} → {to_c} | Last {range_days} Days (Daily Close)",
-            labels={"x": "Date", "Rate": "Exchange Rate"},
-        )
+    fig.update_layout(
+        hovermode="x unified",
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True),
+        margin=dict(l=40, r=40, t=60, b=40),
+    )
 
-        fig.update_traces(
-            line=dict(width=2),
-            hovertemplate="%{y:.4f}<extra></extra>",
-        )
+    st.plotly_chart(fig, use_container_width=True)
 
-        fig.update_layout(
-            hovermode="x unified",
-            xaxis=dict(showgrid=False),
-            yaxis=dict(showgrid=True),
-            margin=dict(l=40, r=40, t=60, b=40),
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
-
-        st.caption(
-            "ℹ️ Rates shown are daily FX closing prices (UTC) from Alpha Vantage. "
-            "They may differ slightly from live mid-market rates shown on XE."
-        )
-    else:
-        st.warning("⚠️ Not enough data for selected range.")
+    st.caption(
+        "📌 Data source: CurrencyAPI.net (daily mid-market rates). "
+        "Chart ranges are calendar-accurate like XE."
+    )
 else:
-    st.warning("⚠️ Historical data not available for this currency pair.")
+    st.warning("⚠️ No historical data available for this range.")
 
 
 
