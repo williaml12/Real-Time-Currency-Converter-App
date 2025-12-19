@@ -2,6 +2,8 @@ import streamlit as st
 import requests
 import pandas as pd
 import plotly.express as px
+import currencyapicom
+
 
 # ================== CONFIG ==================
 API_KEY = "cur_live_fu5Qwj51XDciBICSWKky2Zgjzf3DSa52yj6pqj4C"
