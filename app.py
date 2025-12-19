@@ -4,7 +4,8 @@ import pandas as pd
 import plotly.express as px
 
 # ================== CONFIG ==================
-API_KEY = "cur_live_fu5Qwj51XDciBICSWKky2Zgjzf3DSa52yj6pqj4C"
+# API_KEY = "cur_live_fu5Qwj51XDciBICSWKky2Zgjzf3DSa52yj6pqj4C"
+CURRENCY_API_KEY = "cur_live_fu5Qwj51XDciBICSWKky2Zgjzf3DSa52yj6pqj4C"
 
 st.set_page_config(page_title="Real-Time Currency Converter", page_icon="💱")
 
