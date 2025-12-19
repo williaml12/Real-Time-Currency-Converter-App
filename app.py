@@ -12,7 +12,7 @@ API_KEY = "cur_live_fu5Qwj51XDciBICSWKky2Zgjzf3DSa52yj6pqj4C"
 st.set_page_config(page_title="Real-Time Currency Converter", page_icon="💱")
 
 st.title("💱 Real-Time Currency Converter")
-st.caption("Powered by CurrencyAPI.net")
+st.caption("Powered by CurrencyAPI.com")
 
 # ================== CURRENCY LIST ==================
 CURRENCIES = {
@@ -54,19 +54,36 @@ def set_range(days):
     st.session_state.range_days = days
 
 # ================== LIVE CONVERSION ==================
+# @st.cache_data(ttl=60)
+# def convert_currency(amount, from_c, to_c):
+#     url = (
+#         "https://currencyapi.net/api/v1/rates"
+#         f"?key={API_KEY}&base={from_c}"
+#     )
+
+#     data = requests.get(url, timeout=10).json()
+
+#     rate = float(data["rates"][to_c])
+#     updated = data.get("updated", "Live")
+
+#     return rate * amount, rate, updated
+
 @st.cache_data(ttl=60)
 def convert_currency(amount, from_c, to_c):
-    url = (
-        "https://currencyapi.net/api/v1/rates"
-        f"?key={API_KEY}&base={from_c}"
-    )
+    url = "https://api.currencyapi.com/v3/latest"
+    params = {
+        "apikey": API_KEY,
+        "base_currency": from_c,
+        "currencies": to_c
+    }
 
-    data = requests.get(url, timeout=10).json()
+    r = requests.get(url, params=params, timeout=10).json()
 
-    rate = float(data["rates"][to_c])
-    updated = data.get("updated", "Live")
+    rate = float(r["data"][to_c]["value"])
+    updated = r.get("meta", {}).get("last_updated_at", "Live")
 
-    return rate * amount, rate, updated
+    return amount * rate, rate, updated
+
 
 # ================== INPUTS ==================
 amount = st.number_input("Amount", min_value=0.0, value=1.0, step=0.1)
@@ -114,21 +131,24 @@ def get_fx_history(from_c, to_c, days):
     records = []
 
     for date in pd.date_range(start_date, end_date):
-        date_str = date.strftime("%Y-%m-%d")
+        url = "https://api.currencyapi.com/v3/historical"
+        params = {
+            "apikey": API_KEY,
+            "base_currency": from_c,
+            "currencies": to_c,
+            "date": date.strftime("%Y-%m-%d")
+        }
 
-        url = (
-            "https://currencyapi.net/api/v1/history"
-            f"?key={API_KEY}&base={from_c}&date={date_str}"
-        )
+        r = requests.get(url, params=params, timeout=10).json()
 
-        r = requests.get(url, timeout=10).json()
-
-        if "rates" in r and to_c in r["rates"]:
-            records.append(
-                {"date": date, "rate": float(r["rates"][to_c])}
-            )
+        if "data" in r and to_c in r["data"]:
+            records.append({
+                "date": date,
+                "rate": r["data"][to_c]["value"]
+            })
 
     return pd.DataFrame(records)
+
 
 # ================== XE-STYLE CHART ==================
 st.markdown("---")
