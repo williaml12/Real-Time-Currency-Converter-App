@@ -41,10 +41,11 @@ if "range_days" not in st.session_state:
     st.session_state.range_days = 7
 
 def swap_currencies():
-    st.session_state.from_idx, st.session_state.to_idx = (
-        st.session_state.to_idx,
-        st.session_state.from_idx,
+    st.session_state.from_currency, st.session_state.to_currency = (
+        st.session_state.to_currency,
+        st.session_state.from_currency,
     )
+
 
 def set_range(days):
     st.session_state.range_days = days
@@ -78,8 +79,9 @@ with col1:
     from_currency = st.selectbox(
         "From Currency",
         currency_keys,
-        index=st.session_state.from_idx
+        key="from_currency"
     )
+
 
 with col2:
     st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
@@ -90,12 +92,13 @@ with col3:
     to_currency = st.selectbox(
         "To Currency",
         currency_keys,
-        index=st.session_state.to_idx
+        key="to_currency"
     )
 
+
 # Update indices
-st.session_state.from_idx = currency_keys.index(from_currency)
-st.session_state.to_idx = currency_keys.index(to_currency)
+# st.session_state.from_idx = currency_keys.index(from_currency)
+# st.session_state.to_idx = currency_keys.index(to_currency)
 
 from_c = CURRENCIES[from_currency]
 to_c = CURRENCIES[to_currency]
