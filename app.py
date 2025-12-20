@@ -124,29 +124,32 @@ def get_fx_history(from_c, to_c):
         f"&to_symbol={to_c}"
         f"&apikey={API_KEY}"
     )
+
     response = requests.get(url, timeout=10).json()
     return response.get("Time Series FX (Daily)", {})
 
+
 # ------------------ XE-STYLE CHART ------------------
 st.markdown("---")
-st.subheader("📊 Exchange Rate Chart")
+st.subheader("📈 Exchange Rate History")
 
-b1, b2, b3, b4, b5, b6, b7 = st.columns(7)
+if "range_days" not in st.session_state:
+    st.session_state.range_days = 7
 
-with b1:
-    st.button("1W", key="1w", on_click=set_range, args=(7,))
-with b2:
-    st.button("1M", key="1m", on_click=set_range, args=(30,))
-with b3:
-    st.button("3M", key="3m", on_click=set_range, args=(90,))
-with b4:
-    st.button("1Y", key="1y", on_click=set_range, args=(365,))
-with b5:
-    st.button("2Y", key="2y", on_click=set_range, args=(730,))
-with b6:
-    st.button("5Y", key="5y", on_click=set_range, args=(1825,))
-with b7:
-    st.button("10Y", key="10y", on_click=set_range, args=(3650,))
+def set_range(days):
+    st.session_state.range_days = days
+
+c1, c2, c3, c4 = st.columns(4)
+
+with c1:
+    st.button("1W", on_click=set_range, args=(7,))
+with c2:
+    st.button("1M", on_click=set_range, args=(30,))
+with c3:
+    st.button("3M", on_click=set_range, args=(90,))
+with c4:
+    st.button("1Y", on_click=set_range, args=(365,))
+
 
 range_days = st.session_state.range_days
 history = get_fx_history(from_c, to_c)
@@ -160,15 +163,15 @@ if history:
     )
 
     df.index = pd.to_datetime(df.index)
-    df = df.sort_index().tail(range_days)
+    df = df.sort_index().tail(st.session_state.range_days)
 
     if not df.empty:
         fig = px.line(
             df,
             x=df.index,
             y="Rate",
-            title=f"{from_c} → {to_c} (Daily Close, UTC)",
             labels={"x": "Date", "Rate": "Exchange Rate"},
+            title=f"{from_c} → {to_c}"
         )
 
         fig.update_layout(
@@ -180,7 +183,8 @@ if history:
 
         st.plotly_chart(fig, use_container_width=True)
         st.caption(
-            "Daily FX closing rate (UTC). Short-term ranges (1W–1M) are most accurate."
+            "📌 Daily closing exchange rates (UTC). "
+            "Short ranges (1W–1M) are most accurate."
         )
     else:
         st.warning("⚠️ Not enough data for selected range.")
