@@ -151,7 +151,7 @@ with c4:
     st.button("1Y", on_click=set_range, args=(365,))
 
 
-range_days = st.session_state.range_days
+# range_days = st.session_state.range_days
 history = get_fx_history(from_c, to_c)
 
 if history:
