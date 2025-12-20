@@ -149,22 +149,26 @@ def get_fx_1y(from_c, to_c):
     )
 
     r = requests.get(url, timeout=10).json()
-    data = r.get("Time Series FX (Daily)", {})
 
-    if not data:
+    # ---- HARD SAFETY CHECKS ----
+    if "Time Series FX (Daily)" not in r:
         return pd.DataFrame()
 
+    data = r["Time Series FX (Daily)"]
+
     df = (
-        pd.DataFrame(data)
-        .T
+        pd.DataFrame.from_dict(data, orient="index")
         .rename(columns={"4. close": "Rate"})
-        .astype(float)
     )
 
     df.index = pd.to_datetime(df.index)
+    df["Rate"] = df["Rate"].astype(float)
+
+    # last 365 calendar days
     df = df.sort_index().last("365D")
 
     return df
+
 
 
 df = get_fx_1y(from_c, to_c)
