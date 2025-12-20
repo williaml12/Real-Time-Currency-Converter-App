@@ -40,12 +40,17 @@ if "to_idx" not in st.session_state:
 if "range_days" not in st.session_state:
     st.session_state.range_days = 7
 
+# def swap_currencies():
+#     st.session_state.from_currency, st.session_state.to_currency = (
+#         st.session_state.to_currency,
+#         st.session_state.from_currency,
+#     )
+
 def swap_currencies():
     st.session_state.from_currency, st.session_state.to_currency = (
         st.session_state.to_currency,
         st.session_state.from_currency,
     )
-
 
 def set_range(days):
     st.session_state.range_days = days
@@ -129,67 +134,66 @@ def get_fx_history(from_c, to_c):
     return response.get("Time Series FX (Daily)", {})
 
 
-# ------------------ XE-STYLE CHART ------------------
+# ------------------ ACCURATE 1-YEAR EXCHANGE RATE CHART ------------------
 st.markdown("---")
-st.subheader("📈 Exchange Rate History")
+st.subheader("📈 Exchange Rate History (1 Year)")
 
-if "range_days" not in st.session_state:
-    st.session_state.range_days = 7
+@st.cache_data(ttl=3600)
+def get_fx_1y(from_c, to_c):
+    url = (
+        "https://www.alphavantage.co/query"
+        "?function=FX_DAILY"
+        f"&from_symbol={from_c}"
+        f"&to_symbol={to_c}"
+        f"&apikey={API_KEY}"
+    )
 
-def set_range(days):
-    st.session_state.range_days = days
+    r = requests.get(url, timeout=10).json()
+    data = r.get("Time Series FX (Daily)", {})
 
-c1, c2, c3, c4 = st.columns(4)
+    if not data:
+        return pd.DataFrame()
 
-with c1:
-    st.button("1W", on_click=set_range, args=(7,))
-with c2:
-    st.button("1M", on_click=set_range, args=(30,))
-with c3:
-    st.button("3M", on_click=set_range, args=(90,))
-with c4:
-    st.button("1Y", on_click=set_range, args=(365,))
-
-
-# range_days = st.session_state.range_days
-history = get_fx_history(from_c, to_c)
-
-if history:
     df = (
-        pd.DataFrame(history)
+        pd.DataFrame(data)
         .T
         .rename(columns={"4. close": "Rate"})
         .astype(float)
     )
 
     df.index = pd.to_datetime(df.index)
-    df = df.sort_index().tail(st.session_state.range_days)
+    df = df.sort_index().last("365D")
 
-    if not df.empty:
-        fig = px.line(
-            df,
-            x=df.index,
-            y="Rate",
-            labels={"x": "Date", "Rate": "Exchange Rate"},
-            title=f"{from_c} → {to_c}"
-        )
+    return df
 
-        fig.update_layout(
-            hovermode="x unified",
-            xaxis=dict(showgrid=False),
-            yaxis=dict(showgrid=True),
-            margin=dict(l=40, r=40, t=60, b=40),
-        )
+df = get_fx_1y(from_c, to_c)
 
-        st.plotly_chart(fig, use_container_width=True)
-        st.caption(
-            "📌 Daily closing exchange rates (UTC). "
-            "Short ranges (1W–1M) are most accurate."
-        )
-    else:
-        st.warning("⚠️ Not enough data for selected range.")
+if not df.empty:
+    fig = px.line(
+        df,
+        x=df.index,
+        y="Rate",
+        title=f"{from_c} → {to_c} | Daily Close (Last 1 Year)",
+        labels={"x": "Date", "Rate": "Exchange Rate"},
+    )
+
+    fig.update_traces(line=dict(width=2))
+    fig.update_layout(
+        hovermode="x unified",
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True),
+        margin=dict(l=40, r=40, t=60, b=40),
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.caption(
+        "📌 Data source: Alpha Vantage (Daily FX Close, UTC). "
+        "This chart prioritizes accuracy over intraday estimates."
+    )
 else:
     st.warning("⚠️ Historical data not available for this currency pair.")
+
 
 
 
