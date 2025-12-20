@@ -144,6 +144,7 @@ def get_fx_1y(from_c, to_c):
     url = (
         "https://www.alphavantage.co/query"
         "?function=FX_DAILY"
+        "&outputsize=full"
         f"&from_symbol={from_c}"
         f"&to_symbol={to_c}"
         f"&apikey={API_KEY}"
@@ -151,7 +152,7 @@ def get_fx_1y(from_c, to_c):
 
     r = requests.get(url, timeout=10).json()
 
-    # ---- HARD SAFETY CHECKS ----
+    # Guard against throttling / errors
     if "Time Series FX (Daily)" not in r:
         return pd.DataFrame()
 
@@ -165,10 +166,11 @@ def get_fx_1y(from_c, to_c):
     df.index = pd.to_datetime(df.index)
     df["Rate"] = df["Rate"].astype(float)
 
-    # last 365 calendar days
+    # ⬅️ TRUE last 1 year (calendar accurate)
     df = df.sort_index().last("365D")
 
     return df
+
 
 
 
