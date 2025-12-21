@@ -144,8 +144,8 @@ def get_fx_history(from_c, to_c):
 
 
 # ------------------ ACCURATE 1-YEAR EXCHANGE RATE CHART ------------------
-# st.markdown("---")
-# st.subheader("📈 Exchange Rate History (1 Year)")
+st.markdown("---")
+st.subheader("📈 Exchange Rate History (1 Year)")
 
 # @st.cache_data(ttl=3600)
 # def get_fx_1y(from_c, to_c):
@@ -224,74 +224,35 @@ def get_fx_1y(from_c, to_c):
 
 
 
-# df = get_fx_1y(from_c, to_c)
+df = get_fx_1y(from_c, to_c)
 
-# if not df.empty:
-#     fig = px.line(
-#         df,
-#         x=df.index,
-#         y="Rate",
-#         title=f"{from_c} → {to_c} | Daily Close (Last 1 Year)",
-#         labels={"x": "Date", "Rate": "Exchange Rate"},
-#     )
-
-#     fig.update_traces(line=dict(width=2))
-#     fig.update_layout(
-#         hovermode="x unified",
-#         xaxis=dict(showgrid=False),
-#         yaxis=dict(showgrid=True),
-#         margin=dict(l=40, r=40, t=60, b=40),
-#     )
-
-#     st.plotly_chart(fig, use_container_width=True)
-
-#     st.caption(
-#         "📌 Data source: Alpha Vantage (Daily FX Close, UTC). "
-#         "This chart prioritizes accuracy over intraday estimates."
-#     )
-# else:
-#     st.warning("⚠️ Historical data not available for this currency pair.")
-
-
-st.markdown("---")
-st.subheader("📈 Exchange Rate History (1 Year)")
-
-# Only fetch history if BOTH currencies support it
-if from_c in HISTORY_SUPPORTED and to_c in HISTORY_SUPPORTED:
-
-    df = get_fx_1y(from_c, to_c)
-
-    if not df.empty:
-        fig = px.line(
-            df,
-            x=df.index,
-            y="Rate",
-            title=f"{from_c} → {to_c} | Daily Close (Last 1 Year)",
-            labels={"x": "Date", "Rate": "Exchange Rate"},
-        )
-
-        fig.update_traces(line=dict(width=2))
-        fig.update_layout(
-            hovermode="x unified",
-            xaxis=dict(showgrid=False),
-            yaxis=dict(showgrid=True),
-            margin=dict(l=40, r=40, t=60, b=40),
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
-        st.caption(
-            "📌 Source: Alpha Vantage (Daily FX Close, UTC). "
-            "Historical data is limited to major currencies."
-        )
-
-    else:
-        st.warning("⚠️ Historical data temporarily unavailable.")
-
-else:
-    st.info(
-        "ℹ️ Exchange rate history is available for major currencies only. "
-        "Live conversion still works for this pair."
+if not df.empty:
+    fig = px.line(
+        df,
+        x=df.index,
+        y="Rate",
+        title=f"{from_c} → {to_c} | Daily Close (Last 1 Year)",
+        labels={"x": "Date", "Rate": "Exchange Rate"},
     )
+
+    fig.update_traces(line=dict(width=2))
+    fig.update_layout(
+        hovermode="x unified",
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True),
+        margin=dict(l=40, r=40, t=60, b=40),
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.caption(
+        "📌 Data source: Alpha Vantage (Daily FX Close, UTC). "
+        "This chart prioritizes accuracy over intraday estimates."
+    )
+else:
+    st.warning("⚠️ Historical data not available for this currency pair.")
+
+
 
 
 
