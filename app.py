@@ -138,178 +138,84 @@ def get_fx_history(from_c, to_c):
     return response.get("Time Series FX (Daily)", {})
 
 
-# # ------------------ ACCURATE 1-YEAR EXCHANGE RATE CHART ------------------
-# st.markdown("---")
-# st.subheader("📈 Exchange Rate History (1 Year)")
-
-# # @st.cache_data(ttl=3600)
-# # def get_fx_1y(from_c, to_c):
-# #     url = (
-# #         "https://www.alphavantage.co/query"
-# #         "?function=FX_DAILY"
-# #         "&outputsize=full"
-# #         f"&from_symbol={from_c}"
-# #         f"&to_symbol={to_c}"
-# #         f"&apikey={API_KEY}"
-# #     )
-
-# #     r = requests.get(url, timeout=10).json()
-
-# #     # Guard against throttling / errors
-# #     if "Time Series FX (Daily)" not in r:
-# #         return pd.DataFrame()
-
-# #     data = r["Time Series FX (Daily)"]
-
-# #     df = (
-# #         pd.DataFrame.from_dict(data, orient="index")
-# #         .rename(columns={"4. close": "Rate"})
-# #     )
-
-# #     df.index = pd.to_datetime(df.index)
-# #     df["Rate"] = df["Rate"].astype(float)
-
-# #     # ⬅️ TRUE last 1 year (calendar accurate)
-# #     df = df.sort_index().last("365D")
-
-# #     return df
-
-# # @st.cache_data(ttl=3600)
-# # def get_fx_1y(from_c, to_c):
-# #     url = (
-# #         "https://www.alphavantage.co/query"
-# #         "?function=FX_DAILY"
-# #         "&outputsize=full"
-# #         f"&from_symbol={from_c}"
-# #         f"&to_symbol={to_c}"
-# #         f"&apikey={API_KEY}"
-# #     )
-
-# #     r = requests.get(url, timeout=10).json()
-
-# #     # 🚨 Alpha Vantage quota / error handling
-# #     if "Note" in r:
-# #         st.error("🚫 Alpha Vantage API limit reached. Please wait 1 minute.")
-# #         return pd.DataFrame()
-
-# #     if "Error Message" in r:
-# #         st.error("❌ Invalid API request or API key.")
-# #         return pd.DataFrame()
-
-# #     if "Time Series FX (Daily)" not in r:
-# #         st.error("⚠️ FX history not returned by API.")
-# #         return pd.DataFrame()
-
-# #     data = r["Time Series FX (Daily)"]
-
-# #     df = (
-# #         pd.DataFrame.from_dict(data, orient="index")
-# #         .rename(columns={"4. close": "Rate"})
-# #     )
-
-# #     df.index = pd.to_datetime(df.index)
-# #     df["Rate"] = df["Rate"].astype(float)
-
-# #     # ✅ True 1-year slice
-# #     df = df.sort_index().last("365D")
-
-# #     return df
-
-
-
-
+# ------------------ ACCURATE 1-YEAR EXCHANGE RATE CHART ------------------
+st.markdown("---")
+st.subheader("📈 Exchange Rate History (1 Year)")
 
 # @st.cache_data(ttl=3600)
-# def get_fx_history_universal(from_c, to_c):
-#     def fetch(base, quote):
-#         url = (
-#             "https://www.alphavantage.co/query"
-#             "?function=FX_DAILY"
-#             "&outputsize=full"
-#             f"&from_symbol={base}"
-#             f"&to_symbol={quote}"
-#             f"&apikey={API_KEY}"
-#         )
-#         r = requests.get(url, timeout=10).json()
-#         return r.get("Time Series FX (Daily)", {})
+# def get_fx_1y(from_c, to_c):
+#     url = (
+#         "https://www.alphavantage.co/query"
+#         "?function=FX_DAILY"
+#         "&outputsize=full"
+#         f"&from_symbol={from_c}"
+#         f"&to_symbol={to_c}"
+#         f"&apikey={API_KEY}"
+#     )
 
-#     # Case 1: Same currency
-#     if from_c == to_c:
+#     r = requests.get(url, timeout=10).json()
+
+#     # Guard against throttling / errors
+#     if "Time Series FX (Daily)" not in r:
 #         return pd.DataFrame()
 
-#     # Case 2: Direct USD pair
-#     if from_c == "USD" or to_c == "USD":
-#         base = from_c
-#         quote = to_c
-#         invert = False
-#         if to_c == "USD":
-#             base, quote = "USD", from_c
-#             invert = True
+#     data = r["Time Series FX (Daily)"]
 
-#         data = fetch(base, quote)
-#         if not data:
-#             return pd.DataFrame()
+#     df = (
+#         pd.DataFrame.from_dict(data, orient="index")
+#         .rename(columns={"4. close": "Rate"})
+#     )
 
-#         df = pd.DataFrame(data).T.rename(columns={"4. close": "Rate"})
-#         df.index = pd.to_datetime(df.index)
-#         df["Rate"] = df["Rate"].astype(float)
-#         if invert:
-#             df["Rate"] = 1 / df["Rate"]
+#     df.index = pd.to_datetime(df.index)
+#     df["Rate"] = df["Rate"].astype(float)
 
-#         return df.sort_index().last("365D")
+#     # ⬅️ TRUE last 1 year (calendar accurate)
+#     df = df.sort_index().last("365D")
 
-#     # Case 3: Cross currency (EUR→GBP etc.)
-#     usd_from = fetch("USD", from_c)
-#     usd_to = fetch("USD", to_c)
+#     return df
 
-#     if not usd_from or not usd_to:
+# @st.cache_data(ttl=3600)
+# def get_fx_1y(from_c, to_c):
+#     url = (
+#         "https://www.alphavantage.co/query"
+#         "?function=FX_DAILY"
+#         "&outputsize=full"
+#         f"&from_symbol={from_c}"
+#         f"&to_symbol={to_c}"
+#         f"&apikey={API_KEY}"
+#     )
+
+#     r = requests.get(url, timeout=10).json()
+
+#     # 🚨 Alpha Vantage quota / error handling
+#     if "Note" in r:
+#         st.error("🚫 Alpha Vantage API limit reached. Please wait 1 minute.")
 #         return pd.DataFrame()
 
-#     df_from = pd.DataFrame(usd_from).T.rename(columns={"4. close": "from"})
-#     df_to = pd.DataFrame(usd_to).T.rename(columns={"4. close": "to"})
+#     if "Error Message" in r:
+#         st.error("❌ Invalid API request or API key.")
+#         return pd.DataFrame()
 
-#     df_from.index = pd.to_datetime(df_from.index)
-#     df_to.index = pd.to_datetime(df_to.index)
+#     if "Time Series FX (Daily)" not in r:
+#         st.error("⚠️ FX history not returned by API.")
+#         return pd.DataFrame()
 
-#     df = df_from.join(df_to, how="inner")
-#     df = df.astype(float)
+#     data = r["Time Series FX (Daily)"]
 
-#     df["Rate"] = df["to"] / df["from"]
-
-#     return df[["Rate"]].sort_index().last("365D")
-
-
-
-
-
-
-# df = get_fx_1y(from_c, to_c)
-
-# if not df.empty:
-#     fig = px.line(
-#         df,
-#         x=df.index,
-#         y="Rate",
-#         title=f"{from_c} → {to_c} | Daily Close (Last 1 Year)",
-#         labels={"x": "Date", "Rate": "Exchange Rate"},
+#     df = (
+#         pd.DataFrame.from_dict(data, orient="index")
+#         .rename(columns={"4. close": "Rate"})
 #     )
 
-#     fig.update_traces(line=dict(width=2))
-#     fig.update_layout(
-#         hovermode="x unified",
-#         xaxis=dict(showgrid=False),
-#         yaxis=dict(showgrid=True),
-#         margin=dict(l=40, r=40, t=60, b=40),
-#     )
+#     df.index = pd.to_datetime(df.index)
+#     df["Rate"] = df["Rate"].astype(float)
 
-#     st.plotly_chart(fig, use_container_width=True)
+#     # ✅ True 1-year slice
+#     df = df.sort_index().last("365D")
 
-#     st.caption(
-#         "📌 Data source: Alpha Vantage (Daily FX Close, UTC). "
-#         "This chart prioritizes accuracy over intraday estimates."
-#     )
-# else:
-#     st.warning("⚠️ Historical data not available for this currency pair.")
+#     return df
+
+
 
 
 
@@ -325,22 +231,17 @@ def get_fx_history_universal(from_c, to_c):
             f"&apikey={API_KEY}"
         )
         r = requests.get(url, timeout=10).json()
+        return r.get("Time Series FX (Daily)", {})
 
-        # Handle API throttling or errors silently
-        if "Time Series FX (Daily)" not in r:
-            return {}
-
-        return r["Time Series FX (Daily)"]
-
-    # Same currency → no chart needed
+    # Case 1: Same currency
     if from_c == to_c:
         return pd.DataFrame()
 
-    # ---------- USD PAIRS ----------
+    # Case 2: Direct USD pair
     if from_c == "USD" or to_c == "USD":
+        base = from_c
+        quote = to_c
         invert = False
-        base, quote = from_c, to_c
-
         if to_c == "USD":
             base, quote = "USD", from_c
             invert = True
@@ -352,13 +253,12 @@ def get_fx_history_universal(from_c, to_c):
         df = pd.DataFrame(data).T.rename(columns={"4. close": "Rate"})
         df.index = pd.to_datetime(df.index)
         df["Rate"] = df["Rate"].astype(float)
-
         if invert:
             df["Rate"] = 1 / df["Rate"]
 
         return df.sort_index().last("365D")
 
-    # ---------- CROSS CURRENCY ----------
+    # Case 3: Cross currency (EUR→GBP etc.)
     usd_from = fetch("USD", from_c)
     usd_to = fetch("USD", to_c)
 
@@ -371,16 +271,19 @@ def get_fx_history_universal(from_c, to_c):
     df_from.index = pd.to_datetime(df_from.index)
     df_to.index = pd.to_datetime(df_to.index)
 
-    df = df_from.join(df_to, how="inner").astype(float)
+    df = df_from.join(df_to, how="inner")
+    df = df.astype(float)
 
-    # Cross rate formula
     df["Rate"] = df["to"] / df["from"]
 
     return df[["Rate"]].sort_index().last("365D")
 
 
-# ✅ USE THE CORRECT FUNCTION HERE
-df = get_fx_history_universal(from_c, to_c)
+
+
+
+
+df = get_fx_1y(from_c, to_c)
 
 if not df.empty:
     fig = px.line(
@@ -402,14 +305,12 @@ if not df.empty:
     st.plotly_chart(fig, use_container_width=True)
 
     st.caption(
-        "📌 Data source: Alpha Vantage FX_DAILY (UTC close). "
-        "Cross-currency rates are computed via USD for accuracy."
+        "📌 Data source: Alpha Vantage (Daily FX Close, UTC). "
+        "This chart prioritizes accuracy over intraday estimates."
     )
 else:
-    st.info(
-        "ℹ️ Exchange rate history may be limited for this currency pair. "
-        "Live conversion remains accurate."
-    )
+    st.warning("⚠️ Historical data not available for this currency pair.")
+
 
 
 
