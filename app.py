@@ -179,46 +179,46 @@ def get_fx_history(from_c, to_c):
 
 #     return df
 
-# @st.cache_data(ttl=3600)
-# def get_fx_1y(from_c, to_c):
-#     url = (
-#         "https://www.alphavantage.co/query"
-#         "?function=FX_DAILY"
-#         "&outputsize=full"
-#         f"&from_symbol={from_c}"
-#         f"&to_symbol={to_c}"
-#         f"&apikey={API_KEY}"
-#     )
+@st.cache_data(ttl=3600)
+def get_fx_1y(from_c, to_c):
+    url = (
+        "https://www.alphavantage.co/query"
+        "?function=FX_DAILY"
+        "&outputsize=full"
+        f"&from_symbol={from_c}"
+        f"&to_symbol={to_c}"
+        f"&apikey={API_KEY}"
+    )
 
-#     r = requests.get(url, timeout=10).json()
+    r = requests.get(url, timeout=10).json()
 
-#     # 🚨 Alpha Vantage quota / error handling
-#     if "Note" in r:
-#         st.error("🚫 Alpha Vantage API limit reached. Please wait 1 minute.")
-#         return pd.DataFrame()
+    # 🚨 Alpha Vantage quota / error handling
+    if "Note" in r:
+        st.error("🚫 Alpha Vantage API limit reached. Please wait 1 minute.")
+        return pd.DataFrame()
 
-#     if "Error Message" in r:
-#         st.error("❌ Invalid API request or API key.")
-#         return pd.DataFrame()
+    if "Error Message" in r:
+        st.error("❌ Invalid API request or API key.")
+        return pd.DataFrame()
 
-#     if "Time Series FX (Daily)" not in r:
-#         st.error("⚠️ FX history not returned by API.")
-#         return pd.DataFrame()
+    if "Time Series FX (Daily)" not in r:
+        st.error("⚠️ FX history not returned by API.")
+        return pd.DataFrame()
 
-#     data = r["Time Series FX (Daily)"]
+    data = r["Time Series FX (Daily)"]
 
-#     df = (
-#         pd.DataFrame.from_dict(data, orient="index")
-#         .rename(columns={"4. close": "Rate"})
-#     )
+    df = (
+        pd.DataFrame.from_dict(data, orient="index")
+        .rename(columns={"4. close": "Rate"})
+    )
 
-#     df.index = pd.to_datetime(df.index)
-#     df["Rate"] = df["Rate"].astype(float)
+    df.index = pd.to_datetime(df.index)
+    df["Rate"] = df["Rate"].astype(float)
 
-#     # ✅ True 1-year slice
-#     df = df.sort_index().last("365D")
+    # ✅ True 1-year slice
+    df = df.sort_index().last("365D")
 
-#     return df
+    return df
 
 
 
