@@ -139,38 +139,6 @@ def get_fx_history(from_c, to_c):
 st.markdown("---")
 st.subheader("📈 Exchange Rate History (1 Year)")
 
-# @st.cache_data(ttl=3600)
-# def get_fx_1y(from_c, to_c):
-#     url = (
-#         "https://www.alphavantage.co/query"
-#         "?function=FX_DAILY"
-#         "&outputsize=full"
-#         f"&from_symbol={from_c}"
-#         f"&to_symbol={to_c}"
-#         f"&apikey={API_KEY}"
-#     )
-
-#     r = requests.get(url, timeout=10).json()
-
-#     # Guard against throttling / errors
-#     if "Time Series FX (Daily)" not in r:
-#         return pd.DataFrame()
-
-#     data = r["Time Series FX (Daily)"]
-
-#     df = (
-#         pd.DataFrame.from_dict(data, orient="index")
-#         .rename(columns={"4. close": "Rate"})
-#     )
-
-#     df.index = pd.to_datetime(df.index)
-#     df["Rate"] = df["Rate"].astype(float)
-
-#     # ⬅️ TRUE last 1 year (calendar accurate)
-#     df = df.sort_index().last("365D")
-
-#     return df
-
 @st.cache_data(ttl=3600)
 def get_fx_1y(from_c, to_c):
     url = (
@@ -184,15 +152,7 @@ def get_fx_1y(from_c, to_c):
 
     r = requests.get(url, timeout=10).json()
 
-    # 🔴 Handle API throttling explicitly
-    if "Note" in r:
-        st.warning("⏳ Alpha Vantage rate limit reached. Please wait 1 minute.")
-        return pd.DataFrame()
-
-    if "Error Message" in r:
-        st.error("❌ API error. Check currency pair or API key.")
-        return pd.DataFrame()
-
+    # Guard against throttling / errors
     if "Time Series FX (Daily)" not in r:
         return pd.DataFrame()
 
@@ -206,10 +166,50 @@ def get_fx_1y(from_c, to_c):
     df.index = pd.to_datetime(df.index)
     df["Rate"] = df["Rate"].astype(float)
 
-    # ✅ True last 1 year
+    # ⬅️ TRUE last 1 year (calendar accurate)
     df = df.sort_index().last("365D")
 
     return df
+
+# @st.cache_data(ttl=3600)
+# def get_fx_1y(from_c, to_c):
+#     url = (
+#         "https://www.alphavantage.co/query"
+#         "?function=FX_DAILY"
+#         "&outputsize=full"
+#         f"&from_symbol={from_c}"
+#         f"&to_symbol={to_c}"
+#         f"&apikey={API_KEY}"
+#     )
+
+#     r = requests.get(url, timeout=10).json()
+
+#     # 🔴 Handle API throttling explicitly
+#     if "Note" in r:
+#         st.warning("⏳ Alpha Vantage rate limit reached. Please wait 1 minute.")
+#         return pd.DataFrame()
+
+#     if "Error Message" in r:
+#         st.error("❌ API error. Check currency pair or API key.")
+#         return pd.DataFrame()
+
+#     if "Time Series FX (Daily)" not in r:
+#         return pd.DataFrame()
+
+#     data = r["Time Series FX (Daily)"]
+
+#     df = (
+#         pd.DataFrame.from_dict(data, orient="index")
+#         .rename(columns={"4. close": "Rate"})
+#     )
+
+#     df.index = pd.to_datetime(df.index)
+#     df["Rate"] = df["Rate"].astype(float)
+
+#     # ✅ True last 1 year
+#     df = df.sort_index().last("365D")
+
+#     return df
 
 
 
