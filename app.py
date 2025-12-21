@@ -144,8 +144,8 @@ def get_fx_history(from_c, to_c):
 
 
 # ------------------ ACCURATE 1-YEAR EXCHANGE RATE CHART ------------------
-st.markdown("---")
-st.subheader("📈 Exchange Rate History (1 Year)")
+# st.markdown("---")
+# st.subheader("📈 Exchange Rate History (1 Year)")
 
 # @st.cache_data(ttl=3600)
 # def get_fx_1y(from_c, to_c):
