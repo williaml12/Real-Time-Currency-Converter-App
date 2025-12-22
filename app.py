@@ -14,7 +14,7 @@ API_KEY = "5FL7EVZI072LXD2W"
 
 
 @st.cache_data(ttl=3600)
-def get_fx_history_1y(from_c, to_c):
+def get_fx_1y(from_c, to_c):
     def fetch(base, quote):
         url = (
             "https://www.alphavantage.co/query"
@@ -53,7 +53,7 @@ def get_fx_history_1y(from_c, to_c):
 
         return df.sort_index().last("365D")
 
-    # -------- Case 2: Cross currency via USD --------
+    # -------- Case 2: Cross currency (via USD) --------
     usd_from = fetch("USD", from_c)
     usd_to = fetch("USD", to_c)
 
@@ -286,6 +286,38 @@ def get_fx_1y(from_c, to_c):
 
 
 
+# df = get_fx_1y(from_c, to_c)
+
+# if not df.empty:
+#     fig = px.line(
+#         df,
+#         x=df.index,
+#         y="Rate",
+#         title=f"{from_c} → {to_c} | Daily Close (Last 1 Year)",
+#         labels={"x": "Date", "Rate": "Exchange Rate"},
+#     )
+
+#     fig.update_traces(line=dict(width=2))
+#     fig.update_layout(
+#         hovermode="x unified",
+#         xaxis=dict(showgrid=False),
+#         yaxis=dict(showgrid=True),
+#         margin=dict(l=40, r=40, t=60, b=40),
+#     )
+
+#     st.plotly_chart(fig, use_container_width=True)
+
+#     st.caption(
+#         "📌 Data source: Alpha Vantage (Daily FX Close, UTC). "
+#         "This chart prioritizes accuracy over intraday estimates."
+#     )
+# else:
+#     st.warning("⚠️ Historical data not available for this currency pair.")
+
+
+
+
+
 df = get_fx_1y(from_c, to_c)
 
 if not df.empty:
@@ -308,11 +340,11 @@ if not df.empty:
     st.plotly_chart(fig, use_container_width=True)
 
     st.caption(
-        "📌 Data source: Alpha Vantage (Daily FX Close, UTC). "
-        "This chart prioritizes accuracy over intraday estimates."
+        "📌 Data source: Alpha Vantage (FX Daily, USD-routed for cross pairs)"
     )
 else:
     st.warning("⚠️ Historical data not available for this currency pair.")
+
 
 
 
