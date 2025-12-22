@@ -11,6 +11,8 @@ API_KEY = "5FL7EVZI072LXD2W"
 
 
 
+
+
 @st.cache_data(ttl=3600)
 def get_fx_history_1y(from_c, to_c):
     def fetch(base, quote):
@@ -284,33 +286,33 @@ def get_fx_1y(from_c, to_c):
 
 
 
-# df = get_fx_1y(from_c, to_c)
+df = get_fx_1y(from_c, to_c)
 
-# if not df.empty:
-#     fig = px.line(
-#         df,
-#         x=df.index,
-#         y="Rate",
-#         title=f"{from_c} → {to_c} | Daily Close (Last 1 Year)",
-#         labels={"x": "Date", "Rate": "Exchange Rate"},
-#     )
+if not df.empty:
+    fig = px.line(
+        df,
+        x=df.index,
+        y="Rate",
+        title=f"{from_c} → {to_c} | Daily Close (Last 1 Year)",
+        labels={"x": "Date", "Rate": "Exchange Rate"},
+    )
 
-#     fig.update_traces(line=dict(width=2))
-#     fig.update_layout(
-#         hovermode="x unified",
-#         xaxis=dict(showgrid=False),
-#         yaxis=dict(showgrid=True),
-#         margin=dict(l=40, r=40, t=60, b=40),
-#     )
+    fig.update_traces(line=dict(width=2))
+    fig.update_layout(
+        hovermode="x unified",
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True),
+        margin=dict(l=40, r=40, t=60, b=40),
+    )
 
-#     st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
-#     st.caption(
-#         "📌 Data source: Alpha Vantage (Daily FX Close, UTC). "
-#         "This chart prioritizes accuracy over intraday estimates."
-#     )
-# else:
-#     st.warning("⚠️ Historical data not available for this currency pair.")
+    st.caption(
+        "📌 Data source: Alpha Vantage (Daily FX Close, UTC). "
+        "This chart prioritizes accuracy over intraday estimates."
+    )
+else:
+    st.warning("⚠️ Historical data not available for this currency pair.")
 
 
 
