@@ -8,6 +8,74 @@ API_KEY = "5FL7EVZI072LXD2W"
 # API_KEY = "OQZPNHHQD5N3936K"
 # API_KEY = "VNJ1MAE0ZNO1WFZ6"
 
+
+
+
+@st.cache_data(ttl=3600)
+def get_fx_history_1y(from_c, to_c):
+    def fetch(base, quote):
+        url = (
+            "https://www.alphavantage.co/query"
+            "?function=FX_DAILY"
+            "&outputsize=full"
+            f"&from_symbol={base}"
+            f"&to_symbol={quote}"
+            f"&apikey={API_KEY}"
+        )
+        r = requests.get(url, timeout=10).json()
+        return r.get("Time Series FX (Daily)", {})
+
+    # Same currency → no chart
+    if from_c == to_c:
+        return pd.DataFrame()
+
+    # -------- Case 1: Direct USD pair --------
+    if from_c == "USD" or to_c == "USD":
+        base, quote = from_c, to_c
+        invert = False
+
+        if to_c == "USD":
+            base, quote = "USD", from_c
+            invert = True
+
+        data = fetch(base, quote)
+        if not data:
+            return pd.DataFrame()
+
+        df = pd.DataFrame(data).T.rename(columns={"4. close": "Rate"})
+        df.index = pd.to_datetime(df.index)
+        df["Rate"] = df["Rate"].astype(float)
+
+        if invert:
+            df["Rate"] = 1 / df["Rate"]
+
+        return df.sort_index().last("365D")
+
+    # -------- Case 2: Cross currency via USD --------
+    usd_from = fetch("USD", from_c)
+    usd_to = fetch("USD", to_c)
+
+    if not usd_from or not usd_to:
+        return pd.DataFrame()
+
+    df_from = pd.DataFrame(usd_from).T.rename(columns={"4. close": "from"})
+    df_to = pd.DataFrame(usd_to).T.rename(columns={"4. close": "to"})
+
+    df_from.index = pd.to_datetime(df_from.index)
+    df_to.index = pd.to_datetime(df_to.index)
+
+    df = df_from.join(df_to, how="inner").astype(float)
+    df["Rate"] = df["to"] / df["from"]
+
+    return df[["Rate"]].sort_index().last("365D")
+
+
+
+
+
+
+
+
 st.set_page_config(page_title="Real-Time Currency Converter", page_icon="💱")
 
 st.title("💱 Real-Time Currency Converter")
@@ -216,33 +284,64 @@ def get_fx_1y(from_c, to_c):
 
 
 
-df = get_fx_1y(from_c, to_c)
+# df = get_fx_1y(from_c, to_c)
+
+# if not df.empty:
+#     fig = px.line(
+#         df,
+#         x=df.index,
+#         y="Rate",
+#         title=f"{from_c} → {to_c} | Daily Close (Last 1 Year)",
+#         labels={"x": "Date", "Rate": "Exchange Rate"},
+#     )
+
+#     fig.update_traces(line=dict(width=2))
+#     fig.update_layout(
+#         hovermode="x unified",
+#         xaxis=dict(showgrid=False),
+#         yaxis=dict(showgrid=True),
+#         margin=dict(l=40, r=40, t=60, b=40),
+#     )
+
+#     st.plotly_chart(fig, use_container_width=True)
+
+#     st.caption(
+#         "📌 Data source: Alpha Vantage (Daily FX Close, UTC). "
+#         "This chart prioritizes accuracy over intraday estimates."
+#     )
+# else:
+#     st.warning("⚠️ Historical data not available for this currency pair.")
+
+
+
+
+st.markdown("---")
+st.subheader("📈 Exchange Rate History (1 Year)")
+
+df = get_fx_history_1y(from_c, to_c)
 
 if not df.empty:
     fig = px.line(
         df,
         x=df.index,
         y="Rate",
-        title=f"{from_c} → {to_c} | Daily Close (Last 1 Year)",
+        title=f"{from_c} → {to_c} | Last 1 Year",
         labels={"x": "Date", "Rate": "Exchange Rate"},
     )
 
-    fig.update_traces(line=dict(width=2))
+    fig.update_traces(line_width=2)
     fig.update_layout(
         hovermode="x unified",
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True),
+        xaxis_title="Date",
+        yaxis_title="Exchange Rate",
         margin=dict(l=40, r=40, t=60, b=40),
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
-    st.caption(
-        "📌 Data source: Alpha Vantage (Daily FX Close, UTC). "
-        "This chart prioritizes accuracy over intraday estimates."
-    )
+    st.caption("📌 Data source: Alpha Vantage (FX Daily, routed via USD when needed)")
 else:
-    st.warning("⚠️ Historical data not available for this currency pair.")
+    st.info("ℹ️ Exchange rate history unavailable for this pair.")
 
 
 
