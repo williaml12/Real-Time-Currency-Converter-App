@@ -349,33 +349,7 @@ else:
 
 
 
-st.markdown("---")
-st.subheader("📈 Exchange Rate History (1 Year)")
 
-df = get_fx_history_1y(from_c, to_c)
-
-if not df.empty:
-    fig = px.line(
-        df,
-        x=df.index,
-        y="Rate",
-        title=f"{from_c} → {to_c} | Last 1 Year",
-        labels={"x": "Date", "Rate": "Exchange Rate"},
-    )
-
-    fig.update_traces(line_width=2)
-    fig.update_layout(
-        hovermode="x unified",
-        xaxis_title="Date",
-        yaxis_title="Exchange Rate",
-        margin=dict(l=40, r=40, t=60, b=40),
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.caption("📌 Data source: Alpha Vantage (FX Daily, routed via USD when needed)")
-else:
-    st.info("ℹ️ Exchange rate history unavailable for this pair.")
 
 
 
