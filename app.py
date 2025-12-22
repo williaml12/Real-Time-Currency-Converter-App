@@ -282,40 +282,101 @@ def get_fx_6m(from_c, to_c):
 
 
 
+# st.markdown("---")
+# st.subheader("📈 Exchange Rate History (Last 6 Months)")
+
+# df = get_fx_6m(from_c, to_c)
+
+# if not df.empty:
+#     fig = px.line(
+#         df,
+#         x=df.index,
+#         y="Rate",
+#         title=f"{from_c} → {to_c} | Daily Close (Last 6 Months)",
+#         labels={"x": "Date", "Rate": "Exchange Rate"},
+#     )
+
+#     fig.update_traces(line=dict(width=2))
+#     fig.update_layout(
+#         hovermode="x unified",
+#         xaxis=dict(showgrid=False),
+#         yaxis=dict(showgrid=True),
+#         margin=dict(l=40, r=40, t=60, b=40),
+#     )
+
+#     st.plotly_chart(fig, use_container_width=True)
+
+#     st.caption(
+#         f"📌 Data available from {df.index.min().date()} to {df.index.max().date()} "
+#         "(Alpha Vantage FX Daily, UTC)"
+#     )
+# else:
+#     st.warning("⚠️ Historical data not available for this currency pair.")
+
+
+
+
+
+
+# ------------------ XE-STYLE CHART ------------------
 st.markdown("---")
-st.subheader("📈 Exchange Rate History (Last 6 Months)")
+st.subheader("📊 Exchange Rate Chart")
 
-df = get_fx_6m(from_c, to_c)
+# ⏱ XE-style time buttons (FIXED)
+b1, b2, b3, b4, b5, b6, b7 = st.columns(7)
 
-if not df.empty:
-    fig = px.line(
-        df,
-        x=df.index,
-        y="Rate",
-        title=f"{from_c} → {to_c} | Daily Close (Last 6 Months)",
-        labels={"x": "Date", "Rate": "Exchange Rate"},
+with b1:
+    st.button("1W", key="1w", on_click=set_range, args=(7,))
+with b2:
+    st.button("1M", key="1m", on_click=set_range, args=(30,))
+with b3:
+    st.button("3M", key="3m", on_click=set_range, args=(90,))
+with b4:
+    st.button("1Y", key="1y", on_click=set_range, args=(365,))
+with b5:
+    st.button("2Y", key="2y", on_click=set_range, args=(730,))
+with b6:
+    st.button("5Y", key="5y", on_click=set_range, args=(1825,))
+with b7:
+    st.button("10Y", key="10y", on_click=set_range, args=(3650,))
+
+range_days = st.session_state.range_days
+
+history = get_fx_history(from_c, to_c)
+
+if history:
+    df = (
+        pd.DataFrame(history)
+        .T
+        .rename(columns={"4. close": "Rate"})
+        .astype(float)
     )
 
-    fig.update_traces(line=dict(width=2))
-    fig.update_layout(
-        hovermode="x unified",
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True),
-        margin=dict(l=40, r=40, t=60, b=40),
-    )
+    df.index = pd.to_datetime(df.index)
+    df = df.sort_index().tail(range_days)
 
-    st.plotly_chart(fig, use_container_width=True)
+    if not df.empty:
+        fig = px.line(
+            df,
+            x=df.index,
+            y="Rate",
+            labels={"x": "Date", "Rate": "Exchange Rate"},
+            title=f"{from_c} → {to_c} (Last {range_days} days)"
+        )
 
-    st.caption(
-        f"📌 Data available from {df.index.min().date()} to {df.index.max().date()} "
-        "(Alpha Vantage FX Daily, UTC)"
-    )
+        fig.update_traces(mode="lines")
+        fig.update_layout(
+            hovermode="x unified",
+            xaxis=dict(showgrid=False),
+            yaxis=dict(showgrid=True),
+            margin=dict(l=40, r=40, t=60, b=40)
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning("⚠️ Not enough data for selected range.")
 else:
     st.warning("⚠️ Historical data not available for this currency pair.")
-
-
-
-
 
 
 
