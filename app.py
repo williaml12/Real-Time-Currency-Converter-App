@@ -26,9 +26,11 @@ def get_fx_history_universal(from_c, to_c):
         r = requests.get(url, timeout=10).json()
         return r.get("Time Series FX (Daily)", {})
 
+    # Case 1: Same currency
     if from_c == to_c:
         return pd.DataFrame()
 
+    # Case 2: Direct USD pair
     if from_c == "USD" or to_c == "USD":
         base = from_c
         quote = to_c
@@ -49,6 +51,7 @@ def get_fx_history_universal(from_c, to_c):
 
         return df.sort_index().last("365D")
 
+    # Case 3: Cross currency (EUR→GBP etc.)
     usd_from = fetch("USD", from_c)
     usd_to = fetch("USD", to_c)
 
@@ -61,11 +64,12 @@ def get_fx_history_universal(from_c, to_c):
     df_from.index = pd.to_datetime(df_from.index)
     df_to.index = pd.to_datetime(df_to.index)
 
-    df = df_from.join(df_to, how="inner").astype(float)
+    df = df_from.join(df_to, how="inner")
+    df = df.astype(float)
+
     df["Rate"] = df["to"] / df["from"]
 
     return df[["Rate"]].sort_index().last("365D")
-
 
 
 
