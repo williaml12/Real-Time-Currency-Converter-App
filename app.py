@@ -123,52 +123,18 @@ if amount > 0 and from_c != to_c:
         st.warning("⚠️ Unable to fetch live exchange rate at the moment.")
 
 # ------------------ HISTORICAL DATA ------------------
-# @st.cache_data(ttl=3600)
-# def get_fx_history(from_c, to_c):
-#     url = (
-#         "https://www.alphavantage.co/query"
-#         "?function=FX_DAILY"
-#         f"&from_symbol={from_c}"
-#         f"&to_symbol={to_c}"
-#         f"&apikey={API_KEY}"
-#     )
-
-#     response = requests.get(url, timeout=10).json()
-#     return response.get("Time Series FX (Daily)", {})
-
 @st.cache_data(ttl=3600)
-def get_fx_6m(from_c, to_c):
+def get_fx_history(from_c, to_c):
     url = (
         "https://www.alphavantage.co/query"
         "?function=FX_DAILY"
-        "&outputsize=full"
         f"&from_symbol={from_c}"
         f"&to_symbol={to_c}"
         f"&apikey={API_KEY}"
     )
 
-    r = requests.get(url, timeout=10).json()
-
-    # Guard against API issues
-    if "Time Series FX (Daily)" not in r:
-        return pd.DataFrame()
-
-    data = r["Time Series FX (Daily)"]
-
-    df = (
-        pd.DataFrame.from_dict(data, orient="index")
-        .rename(columns={"4. close": "Rate"})
-    )
-
-    df.index = pd.to_datetime(df.index)
-    df["Rate"] = df["Rate"].astype(float)
-
-    # ✅ TRUE last 6 months (calendar-accurate)
-    df = df.sort_index().last("180D")
-
-    return df
-
-
+    response = requests.get(url, timeout=10).json()
+    return response.get("Time Series FX (Daily)", {})
 
 # ------------------ ACCURATE 1-YEAR EXCHANGE RATE CHART ------------------
 # st.markdown("---")
