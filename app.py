@@ -287,7 +287,7 @@ def get_fx_history_universal(from_c, to_c):
 
 
 
-df = get_fx_1y(from_c, to_c)
+# df = get_fx_1y(from_c, to_c)
 
 if not df.empty:
     fig = px.line(
