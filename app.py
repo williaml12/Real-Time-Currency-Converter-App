@@ -43,17 +43,17 @@ if "to_idx" not in st.session_state:
 if "range_days" not in st.session_state:
     st.session_state.range_days = 7
 
-# def swap_currencies():
-#     st.session_state.from_currency, st.session_state.to_currency = (
-#         st.session_state.to_currency,
-#         st.session_state.from_currency,
-#     )
-
 def swap_currencies():
     st.session_state.from_currency, st.session_state.to_currency = (
         st.session_state.to_currency,
         st.session_state.from_currency,
     )
+
+# def swap_currencies():
+#     st.session_state.from_currency, st.session_state.to_currency = (
+#         st.session_state.to_currency,
+#         st.session_state.from_currency,
+#     )
 
 def set_range(days):
     st.session_state.range_days = days
