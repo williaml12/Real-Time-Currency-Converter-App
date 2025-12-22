@@ -104,9 +104,9 @@ with col3:
     )
 
 
-# Update indices
-# st.session_state.from_idx = currency_keys.index(from_currency)
-# st.session_state.to_idx = currency_keys.index(to_currency)
+Update indices
+st.session_state.from_idx = currency_keys.index(from_currency)
+st.session_state.to_idx = currency_keys.index(to_currency)
 
 from_c = CURRENCIES[from_currency]
 to_c = CURRENCIES[to_currency]
