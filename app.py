@@ -132,10 +132,8 @@ def get_fx_history(from_c, to_c):
         f"&to_symbol={to_c}"
         f"&apikey={API_KEY}"
     )
-
     response = requests.get(url, timeout=10).json()
     return response.get("Time Series FX (Daily)", {})
-
 
 # ------------------ XE-STYLE CHART ------------------
 st.markdown("---")
