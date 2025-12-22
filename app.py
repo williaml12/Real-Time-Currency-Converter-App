@@ -8,75 +8,6 @@ API_KEY = "5FL7EVZI072LXD2W"
 # API_KEY = "OQZPNHHQD5N3936K"
 # API_KEY = "VNJ1MAE0ZNO1WFZ6"
 
-
-
-
-
-@st.cache_data(ttl=3600)
-def get_fx_history_universal(from_c, to_c):
-    def fetch(base, quote):
-        url = (
-            "https://www.alphavantage.co/query"
-            "?function=FX_DAILY"
-            "&outputsize=full"
-            f"&from_symbol={base}"
-            f"&to_symbol={quote}"
-            f"&apikey={API_KEY}"
-        )
-        r = requests.get(url, timeout=10).json()
-        return r.get("Time Series FX (Daily)", {})
-
-    # Case 1: Same currency
-    if from_c == to_c:
-        return pd.DataFrame()
-
-    # Case 2: Direct USD pair
-    if from_c == "USD" or to_c == "USD":
-        base = from_c
-        quote = to_c
-        invert = False
-        if to_c == "USD":
-            base, quote = "USD", from_c
-            invert = True
-
-        data = fetch(base, quote)
-        if not data:
-            return pd.DataFrame()
-
-        df = pd.DataFrame(data).T.rename(columns={"4. close": "Rate"})
-        df.index = pd.to_datetime(df.index)
-        df["Rate"] = df["Rate"].astype(float)
-        if invert:
-            df["Rate"] = 1 / df["Rate"]
-
-        return df.sort_index().last("365D")
-
-    # Case 3: Cross currency (EUR→GBP etc.)
-    usd_from = fetch("USD", from_c)
-    usd_to = fetch("USD", to_c)
-
-    if not usd_from or not usd_to:
-        return pd.DataFrame()
-
-    df_from = pd.DataFrame(usd_from).T.rename(columns={"4. close": "from"})
-    df_to = pd.DataFrame(usd_to).T.rename(columns={"4. close": "to"})
-
-    df_from.index = pd.to_datetime(df_from.index)
-    df_to.index = pd.to_datetime(df_to.index)
-
-    df = df_from.join(df_to, how="inner")
-    df = df.astype(float)
-
-    df["Rate"] = df["to"] / df["from"]
-
-    return df[["Rate"]].sort_index().last("365D")
-
-
-
-
-
-
-
 st.set_page_config(page_title="Real-Time Currency Converter", page_icon="💱")
 
 st.title("💱 Real-Time Currency Converter")
@@ -210,37 +141,37 @@ def get_fx_history(from_c, to_c):
 st.markdown("---")
 st.subheader("📈 Exchange Rate History (1 Year)")
 
-@st.cache_data(ttl=3600)
-def get_fx_1y(from_c, to_c):
-    url = (
-        "https://www.alphavantage.co/query"
-        "?function=FX_DAILY"
-        "&outputsize=full"
-        f"&from_symbol={from_c}"
-        f"&to_symbol={to_c}"
-        f"&apikey={API_KEY}"
-    )
+# @st.cache_data(ttl=3600)
+# def get_fx_1y(from_c, to_c):
+#     url = (
+#         "https://www.alphavantage.co/query"
+#         "?function=FX_DAILY"
+#         "&outputsize=full"
+#         f"&from_symbol={from_c}"
+#         f"&to_symbol={to_c}"
+#         f"&apikey={API_KEY}"
+#     )
 
-    r = requests.get(url, timeout=10).json()
+#     r = requests.get(url, timeout=10).json()
 
-    # Guard against throttling / errors
-    if "Time Series FX (Daily)" not in r:
-        return pd.DataFrame()
+#     # Guard against throttling / errors
+#     if "Time Series FX (Daily)" not in r:
+#         return pd.DataFrame()
 
-    data = r["Time Series FX (Daily)"]
+#     data = r["Time Series FX (Daily)"]
 
-    df = (
-        pd.DataFrame.from_dict(data, orient="index")
-        .rename(columns={"4. close": "Rate"})
-    )
+#     df = (
+#         pd.DataFrame.from_dict(data, orient="index")
+#         .rename(columns={"4. close": "Rate"})
+#     )
 
-    df.index = pd.to_datetime(df.index)
-    df["Rate"] = df["Rate"].astype(float)
+#     df.index = pd.to_datetime(df.index)
+#     df["Rate"] = df["Rate"].astype(float)
 
-    # ⬅️ TRUE last 1 year (calendar accurate)
-    df = df.sort_index().last("365D")
+#     # ⬅️ TRUE last 1 year (calendar accurate)
+#     df = df.sort_index().last("365D")
 
-    return df
+#     return df
 
 # @st.cache_data(ttl=3600)
 # def get_fx_1y(from_c, to_c):
@@ -282,6 +213,74 @@ def get_fx_1y(from_c, to_c):
 #     df = df.sort_index().last("365D")
 
 #     return df
+
+
+
+@st.cache_data(ttl=3600)
+def get_fx_history_universal(from_c, to_c):
+    def fetch(base, quote):
+        url = (
+            "https://www.alphavantage.co/query"
+            "?function=FX_DAILY"
+            "&outputsize=full"
+            f"&from_symbol={base}"
+            f"&to_symbol={quote}"
+            f"&apikey={API_KEY}"
+        )
+        r = requests.get(url, timeout=10).json()
+        return r.get("Time Series FX (Daily)", {})
+
+    # Case 1: Same currency
+    if from_c == to_c:
+        return pd.DataFrame()
+
+    # Case 2: Direct USD pair
+    if from_c == "USD" or to_c == "USD":
+        base = from_c
+        quote = to_c
+        invert = False
+        if to_c == "USD":
+            base, quote = "USD", from_c
+            invert = True
+
+        data = fetch(base, quote)
+        if not data:
+            return pd.DataFrame()
+
+        df = pd.DataFrame(data).T.rename(columns={"4. close": "Rate"})
+        df.index = pd.to_datetime(df.index)
+        df["Rate"] = df["Rate"].astype(float)
+        if invert:
+            df["Rate"] = 1 / df["Rate"]
+
+        return df.sort_index().last("365D")
+
+    # Case 3: Cross currency (EUR→GBP etc.)
+    usd_from = fetch("USD", from_c)
+    usd_to = fetch("USD", to_c)
+
+    if not usd_from or not usd_to:
+        return pd.DataFrame()
+
+    df_from = pd.DataFrame(usd_from).T.rename(columns={"4. close": "from"})
+    df_to = pd.DataFrame(usd_to).T.rename(columns={"4. close": "to"})
+
+    df_from.index = pd.to_datetime(df_from.index)
+    df_to.index = pd.to_datetime(df_to.index)
+
+    df = df_from.join(df_to, how="inner")
+    df = df.astype(float)
+
+    df["Rate"] = df["to"] / df["from"]
+
+    return df[["Rate"]].sort_index().last("365D")
+
+
+
+
+
+
+
 
 
 
