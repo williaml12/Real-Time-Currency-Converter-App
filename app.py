@@ -126,8 +126,8 @@ def get_fx_history(from_c, to_c):
     return response.get("Time Series FX (Daily)", {})
 
 # ------------------ XE-STYLE CHART ------------------
-st.markdown("---")
-st.subheader("📊 Exchange Rate Chart")
+# st.markdown("---")
+# st.subheader("📊 Exchange Rate Chart")
 
 # # ⏱ XE-style time buttons (FIXED)
 # b1, b2, b3, b4, b5, b6, b7 = st.columns(7)
@@ -192,7 +192,7 @@ st.subheader("📊 Exchange Rate Chart")
 
 # ------------------ 6-MONTH EXCHANGE RATE CHART ------------------
 st.markdown("---")
-st.subheader("📊 Exchange Rate History (Last 6 Months)")
+st.subheader("📈 Exchange Rate History (Last 6 Months)")
 
 @st.cache_data(ttl=3600)
 def get_fx_6m(from_c, to_c):
