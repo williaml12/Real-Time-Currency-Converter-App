@@ -3,7 +3,9 @@ import requests
 import pandas as pd
 import plotly.express as px
 
-API_KEY = "5FL7EVZI072LXD2W"
+
+API_KEY = st.secrets["CURRENCY_API_KEY"]
+
 
 st.set_page_config(page_title="Real-Time Currency Converter", page_icon="💱")
 
