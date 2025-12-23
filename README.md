@@ -65,5 +65,22 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+## 📌 Future Enhancements
+- Add multi-timeframe historical charts (6M / 1Y)
+- Support cryptocurrency conversion
+- Add favorite currency pairs
+- Improve UI with themes and animations
+- Add offline fallback support
 
+## 🙋‍♂️ Author
+Created by William Lu
+🔗 GitHub: https://github.com/williaml12
+
+Feel free to open an issue or submit a pull request if you have ideas or improvements!
+
+## 📝 License
+This project is open source and available for personal and educational use.
+All exchange rate data is provided by third-party APIs and may be subject to their respective terms.
+
+Licensed under the [MIT License](LICENSE).
 
