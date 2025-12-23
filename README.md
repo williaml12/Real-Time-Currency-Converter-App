@@ -47,6 +47,8 @@ Real-Time-Currency-Converter/
 └── assets/             # Optional images or icons
 ```
 
+---
+
 ## ▶️ Getting Started (Local Setup)
 
 ### 1. Clone the repository
@@ -65,6 +67,8 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+---
+
 ## 📌 Future Enhancements
 - Add multi-timeframe historical charts (6M / 1Y)
 - Support cryptocurrency conversion
@@ -72,11 +76,15 @@ streamlit run app.py
 - Improve UI with themes and animations
 - Add offline fallback support
 
+---
+
 ## 🙋‍♂️ Author
 Created by William Lu
 🔗 GitHub: https://github.com/williaml12
 
 Feel free to open an issue or submit a pull request if you have ideas or improvements!
+
+---
 
 ## 📝 License
 This project is open source and available for personal and educational use.
@@ -84,3 +92,15 @@ All exchange rate data is provided by third-party APIs and may be subject to the
 
 Licensed under the [MIT License](LICENSE).
 
+```yaml
+
+---
+
+If you want, I can also:
+
+✅ Add badges for API status  
+✅ Customize it for your specific currency API  
+✅ Generate a polished UI screenshot section  
+
+Just tell me!
+```
