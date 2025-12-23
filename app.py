@@ -116,7 +116,8 @@ if convert_clicked:
         time_updated = response["Realtime Currency Exchange Rate"]["6. Last Refreshed"]
 
         st.success(f"💰 {amount} {from_c} = {result:.2f} {to_c}")
-        st.caption(f"⏱ Last updated: {time_updated}")
+        # st.caption(f"⏱ Last updated: {time_updated}")
+        st.caption(f"Rate: {rate:.6f} | ⏱ Updated: {time_updated}")
 
     except Exception as e:
         st.error(f"❌ Error: {e}")
