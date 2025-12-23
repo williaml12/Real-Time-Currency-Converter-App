@@ -45,3 +45,25 @@ Real-Time-Currency-Converter/
 ├── requirements.txt    # Python dependencies
 ├── README.md           # Project documentation
 └── assets/             # Optional images or icons
+```
+
+## ▶️ Getting Started (Local Setup)
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/your-username/Real-Time-Currency-Converter.git
+cd Real-Time-Currency-Converter
+```
+
+### 2. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the app
+```bash
+streamlit run app.py
+```
+
+
+
