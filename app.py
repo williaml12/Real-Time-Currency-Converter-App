@@ -338,7 +338,7 @@ with b1:
 with b2:
     st.button("1M", key="1m", on_click=set_range, args=(30,))
 with b3:
-    st.button("3M", key="3m", on_click=set_range, args=(90,))
+    st.button("6M", key="6m", on_click=set_range, args=(180,))
 with b4:
     st.button("1Y", key="1y", on_click=set_range, args=(365,))
 # with b5:
@@ -361,7 +361,12 @@ if history:
     )
 
     df.index = pd.to_datetime(df.index)
-    df = df.sort_index().tail(range_days)
+    df = df.sort_index()
+
+    # ✅ DATE-BASED filtering (fixes wrong start dates)
+    end_date = df.index.max()
+    start_date = end_date - pd.Timedelta(days=range_days)
+    df = df.loc[df.index >= start_date]
 
     if not df.empty:
         fig = px.line(
@@ -372,7 +377,6 @@ if history:
             title=f"{from_c} → {to_c} (Last {range_days} days)"
         )
 
-        fig.update_traces(mode="lines")
         fig.update_layout(
             hovermode="x unified",
             xaxis=dict(showgrid=False),
@@ -385,13 +389,6 @@ if history:
         st.warning("⚠️ Not enough data for selected range.")
 else:
     st.warning("⚠️ Historical data not available for this currency pair.")
-
-
-
-
-
-
-
 
 
 
