@@ -137,12 +137,76 @@ def get_fx_history(from_c, to_c):
     response = requests.get(url, timeout=10).json()
     return response.get("Time Series FX (Daily)", {})
 
-# ------------------ 6-MONTH EXCHANGE RATE CHART ------------------
+# # ------------------ 6-MONTH EXCHANGE RATE CHART ------------------
+# st.markdown("---")
+# st.subheader("📈 Exchange Rate History (Last 6 Months)")
+
+# @st.cache_data(ttl=3600)
+# def get_fx_6m(from_c, to_c):
+#     url = (
+#         "https://www.alphavantage.co/query"
+#         "?function=FX_DAILY"
+#         "&outputsize=full"
+#         f"&from_symbol={from_c}"
+#         f"&to_symbol={to_c}"
+#         f"&apikey={API_KEY}"
+#     )
+#     r = requests.get(url, timeout=10).json()
+
+#     if "Time Series FX (Daily)" not in r:
+#         return pd.DataFrame()
+
+#     df = (
+#         pd.DataFrame(r["Time Series FX (Daily)"])
+#         .T
+#         .rename(columns={"4. close": "Rate"})
+#         .astype(float)
+#     )
+
+#     df.index = pd.to_datetime(df.index)
+#     df = df.sort_index()
+
+#     # ✅ TRUE last 6 months
+#     end_date = df.index.max()
+#     start_date = end_date - pd.DateOffset(months=6)
+#     df = df.loc[df.index >= start_date]
+
+#     return df
+
+
+# df = get_fx_6m(from_c, to_c)
+
+# if not df.empty:
+#     fig = px.line(
+#         df,
+#         x=df.index,
+#         y="Rate",
+#         title=f"{from_c} → {to_c} (Last 6 Months)",
+#         labels={"x": "Date", "Rate": "Exchange Rate"},
+#     )
+
+#     fig.update_layout(
+#         hovermode="x unified",
+#         xaxis=dict(showgrid=False),
+#         yaxis=dict(showgrid=True),
+#         margin=dict(l=40, r=40, t=60, b=40),
+#     )
+
+#     st.plotly_chart(fig, use_container_width=True)
+#     st.caption("📌 Data source: Alpha Vantage (Daily FX Close)")
+# else:
+#     st.warning("⚠️ Historical data not available for this currency pair.")
+
+
+
+
+
+# ------------------ 1-YEAR EXCHANGE RATE CHART ------------------
 st.markdown("---")
-st.subheader("📈 Exchange Rate History (Last 6 Months)")
+st.subheader("📊 Exchange Rate History (Last 1 Year)")
 
 @st.cache_data(ttl=3600)
-def get_fx_6m(from_c, to_c):
+def get_fx_1y(from_c, to_c):
     url = (
         "https://www.alphavantage.co/query"
         "?function=FX_DAILY"
@@ -166,22 +230,22 @@ def get_fx_6m(from_c, to_c):
     df.index = pd.to_datetime(df.index)
     df = df.sort_index()
 
-    # ✅ TRUE last 6 months
+    # ✅ TRUE last 12 months
     end_date = df.index.max()
-    start_date = end_date - pd.DateOffset(months=6)
+    start_date = end_date - pd.DateOffset(years=1)
     df = df.loc[df.index >= start_date]
 
     return df
 
 
-df = get_fx_6m(from_c, to_c)
+df = get_fx_1y(from_c, to_c)
 
 if not df.empty:
     fig = px.line(
         df,
         x=df.index,
         y="Rate",
-        title=f"{from_c} → {to_c} (Last 6 Months)",
+        title=f"{from_c} → {to_c} (Last 12 Months)",
         labels={"x": "Date", "Rate": "Exchange Rate"},
     )
 
@@ -196,11 +260,6 @@ if not df.empty:
     st.caption("📌 Data source: Alpha Vantage (Daily FX Close)")
 else:
     st.warning("⚠️ Historical data not available for this currency pair.")
-
-
-
-
-
 
 
 
