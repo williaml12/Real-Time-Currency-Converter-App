@@ -91,16 +91,3 @@ This project is open source and available for personal and educational use.
 All exchange rate data is provided by third-party APIs and may be subject to their respective terms.
 
 Licensed under the [MIT License](LICENSE).
-
-```yaml
-
----
-
-If you want, I can also:
-
-✅ Add badges for API status  
-✅ Customize it for your specific currency API  
-✅ Generate a polished UI screenshot section  
-
-Just tell me!
-```
